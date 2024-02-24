@@ -1,0 +1,3 @@
+FROM mariadb:10.5
+CMD ["mysqld"]
+EXPOSE ${DATABASE_EXPOSED_PORT}
