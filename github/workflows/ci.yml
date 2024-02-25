@@ -1,0 +1,17 @@
+name: CI
+
+on: [push]
+
+jobs:
+    build-test:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v3
+            - uses: php-actions/composer@v6 # or alternative dependency management
+            - uses: php-actions/phpstan@v3
+              with:
+                  path: src/
+            - uses: docker://oskarstark/php-cs-fixer-ga
+              with:
+                  args: --config=.project.php_cs --allow-risky=yes --diff --dry-run
