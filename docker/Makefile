@@ -1,3 +1,11 @@
+setup:
+	@echo "Check for existence of .env file and create it from .env.dist if necessary"
+	@test -f .env || ( cp .env.dist .env && echo " - .env-File Created. Check the contents and modify it to your own setup.")
+	@echo "Development successfully configured:\n - You can now run \"make run\" to start the docker-environment."
+
+install:
+	docker-compose exec php-fpm composer install
+
 run:
 	docker-compose pull
 	docker-compose up --force-recreate
