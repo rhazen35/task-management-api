@@ -6,6 +6,7 @@
 parameters:
     admin_user.email: '%env(string:ADMIN_USER_EMAIL)%'
     admin_user.password: '%env(string:ADMIN_USER_PASSWORD)%'
+    cache.expires_after: '%env(int:CACHE_EXPIRES_AFTER)%'
 
 services:
     # default configuration for services in *this* file

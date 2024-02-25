@@ -22,6 +22,15 @@ doctrine:
                 dir: '%kernel.project_dir%/src/Entity'
                 prefix: 'App\Entity'
                 alias: App
+        second_level_cache:
+            enabled: true
+            regions:
+                append_only:
+                    lifetime: '%env(int::CACHE_EXPIRES_AFTER)%'
+                    cache_driver: { type: service, id: cache.app }
+        result_cache_driver:
+            type: pool
+            pool: custom_cache_pool
 
 when@test:
     doctrine:

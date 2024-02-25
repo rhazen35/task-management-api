@@ -11,6 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: TaskRepository::class)]
+#[ORM\Cache(usage: 'READ_ONLY', region: 'append_only')]
 class Task
 {
     #[ORM\Id]
@@ -18,10 +19,10 @@ class Task
     private Uuid $id;
 
     #[ORM\Column(length: 255)]
-    private ?string $title = null;
+    private string $title;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $description = null;
+    private string $description;
 
     #[ORM\Column(length: 255)]
     private TaskStatus $status = TaskStatus::Backlog;
@@ -40,7 +41,7 @@ class Task
         return $this->id;
     }
 
-    public function getTitle(): ?string
+    public function getTitle(): string
     {
         return $this->title;
     }
@@ -52,12 +53,12 @@ class Task
         return $this;
     }
 
-    public function getDescription(): ?string
+    public function getDescription(): string
     {
         return $this->description;
     }
 
-    public function setDescription(?string $description): static
+    public function setDescription(string $description): static
     {
         $this->description = $description;
 

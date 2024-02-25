@@ -37,8 +37,6 @@ class UserFixtures extends Fixture implements FixtureGroupInterface
             ],
         );
 
-        assert($admin instanceof User);
-
         $admin->markAsAdmin();
         $manager->flush();
     }
