@@ -16,8 +16,6 @@ class UserFixtures extends Fixture implements FixtureGroupInterface
     public function __construct(
         #[Autowire(param: 'admin_user.email')]
         private readonly string $adminEmail,
-        #[Autowire(param: 'admin_user.email')]
-        private readonly string $adminPassword,
     ) {
     }
 
@@ -36,7 +34,6 @@ class UserFixtures extends Fixture implements FixtureGroupInterface
         $admin = UserFactory::createOne(
             [
                 'email' => $this->adminEmail,
-                'plainPassword' => $this->adminPassword,
             ],
         );
 

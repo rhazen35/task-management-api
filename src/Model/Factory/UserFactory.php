@@ -7,6 +7,7 @@ namespace App\Model\Factory;
 use App\Entity\User;
 use App\Model\Gender;
 use App\Repository\UserRepository;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Zenstruck\Foundry\ModelFactory;
 use Zenstruck\Foundry\Proxy;
@@ -34,6 +35,8 @@ use Zenstruck\Foundry\RepositoryProxy;
 final class UserFactory extends ModelFactory
 {
     public function __construct(
+        #[Autowire(param: 'admin_user.password')]
+        private readonly string $adminPassword,
         private readonly UserPasswordHasherInterface $passwordHasher,
     ) {
         parent::__construct();
@@ -51,7 +54,7 @@ final class UserFactory extends ModelFactory
             'firstName' => self::faker()->firstName($gender),
             'isVerified' => self::faker()->boolean(),
             'lastName' => self::faker()->lastName($gender),
-            'plainPassword' => self::faker()->password(),
+            'plainPassword' => $this->adminPassword,
             'roles' => [],
         ];
     }

@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Uid\UuidV4;
+use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[UniqueEntity(fields: ['email'], message: 'There is already an account with this email')]
@@ -18,9 +20,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private const ROLE_ADMIN = 'ROLE_ADMIN';
 
     #[ORM\Id]
-    #[ORM\GeneratedValue(strategy: 'NONE')]
     #[ORM\Column(type: 'uuid', unique: true)]
-    private UuidV4 $id;
+    private Uuid $id;
 
     #[ORM\Column(length: 180, unique: true)]
     private string $email;
@@ -48,12 +49,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     private ?string $plainPassword = null;
 
+    /**
+     * @var Collection<int, Task>
+     */
+    #[ORM\OneToMany(targetEntity: Task::class, mappedBy: 'assignee')]
+    private Collection $tasks;
+
     public function __construct()
     {
-        $this->id = new UuidV4();
+        $this->id = Uuid::v4();
+        $this->tasks = new ArrayCollection();
     }
 
-    public function getId(): UuidV4
+    public function getId(): Uuid
     {
         return $this->id;
     }
@@ -152,6 +160,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getFullName(): ?string
+    {
+        $firstName = $this->getFirstName();
+        $lastName = $this->getLastName();
+
+        if (null === $firstName && null === $lastName) {
+            return null;
+        }
+
+        return implode(
+            ' ',
+            array_filter(
+                [
+                    $firstName,
+                    $lastName,
+                    ],
+            ),
+        );
+    }
+
     public function isVerified(): bool
     {
         return $this->isVerified;
@@ -181,5 +209,45 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         }
 
         $this->roles[] = self::ROLE_ADMIN;
+    }
+
+    public function isAdmin(): bool
+    {
+        return in_array(self::ROLE_ADMIN, $this->roles);
+    }
+
+    /**
+     * @return Collection<int, Task>
+     */
+    public function getTasks(): Collection
+    {
+        return $this->tasks;
+    }
+
+    public function addTask(Task $task): static
+    {
+        if (!$this->tasks->contains($task)) {
+            $this->tasks->add($task);
+            $task->setAssignee($this);
+        }
+
+        return $this;
+    }
+
+    public function removeTask(Task $task): static
+    {
+        if ($this->tasks->removeElement($task)) {
+            // set the owning side to null (unless already changed)
+            if ($task->getAssignee() === $this) {
+                $task->setAssignee(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->getFullName() ?? $this->getEmail();
     }
 }
